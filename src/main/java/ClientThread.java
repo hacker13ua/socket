@@ -2,6 +2,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Date;
 import java.util.List;
 
 public class ClientThread extends Thread {
@@ -9,6 +10,7 @@ public class ClientThread extends Thread {
     private List<ClientThread> allClients;
     private DataInputStream is;
     private DataOutputStream os;
+    private String nickName;
 
     public ClientThread(final Socket socket,
                         final List<ClientThread> allClients) {
@@ -27,14 +29,21 @@ public class ClientThread extends Thread {
     public void run() {
         System.out.println("Run thread for client" +
                 socket.getInetAddress());
+        try {
+            nickName = is.readUTF();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         while (true) {
             try {
                 String text = is.readUTF();
                 System.out.println("Text from "+
-                        socket.getInetAddress() + " " + text);
+                        nickName + " " + text);
                 for (ClientThread client : allClients) {
                     if (client != this) {
-                        client.os.writeUTF(text);
+                        client.os.writeUTF(new Date()+
+                                " " + nickName
+                                        + ": " + text);
                         client.os.flush();
                     }
                 }

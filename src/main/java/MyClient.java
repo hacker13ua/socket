@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class MyClient {
     public static void main(String[] args) throws IOException {
         Socket socket = new Socket("127.0.0.1", 8888);
-
+        
         DataOutputStream outputStream =
                 new DataOutputStream(socket.getOutputStream());
         DataInputStream inputStream =

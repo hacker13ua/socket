@@ -2,11 +2,12 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MultiClientServer {
     public static void main(String[] args) throws Exception {
         List<ClientThread> allClients =
-                new ArrayList<>();
+                new CopyOnWriteArrayList<>();
         ServerSocket serverSocket = new ServerSocket(8888);
         while (true) {
             System.out.println("Wait client");

@@ -3,6 +3,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 public class ClientThread extends Thread {
@@ -37,18 +38,40 @@ public class ClientThread extends Thread {
         while (true) {
             try {
                 String text = is.readUTF();
-                System.out.println("Text from "+
+                System.out.println("Text from " +
                         nickName + " " + text);
+                final Iterator<ClientThread> iterator =
+                        allClients.iterator();
+                while (iterator.hasNext()) {
+                    final ClientThread client = iterator.next();
+                    if (client.socket.isClosed()) {
+                        iterator.remove();
+                        client.socket.close();
+                    }
+                }
                 for (ClientThread client : allClients) {
                     if (client != this) {
-                        client.os.writeUTF(new Date()+
+                        client.os.writeUTF(new Date() +
                                 " " + nickName
-                                        + ": " + text);
+                                + ": " + text);
                         client.os.flush();
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                try {
+                    System.out.println(nickName + " вышел из чата");
+                    socket.close();
+                    allClients.remove(socket);
+                    for (ClientThread client : allClients) {
+                        client.os.writeUTF(
+                                nickName + " вышел из чата");
+                        client.os.flush();
+                    }
+
+                    break;
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
